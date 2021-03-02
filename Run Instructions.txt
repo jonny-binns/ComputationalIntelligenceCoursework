@@ -1,0 +1,6 @@
+Start GUI
+Run ea trainer
+after its finished it will give you a .txt file
+click test weights
+open the .txt file
+test
