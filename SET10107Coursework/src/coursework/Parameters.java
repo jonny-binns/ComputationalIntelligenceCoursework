@@ -18,18 +18,24 @@ public class Parameters {
 	public static double minGene = -3; // specifies minimum and maximum weight values 
 	public static double maxGene = +3;
 	
-	//public static int popSize = 40;
-	public static int popSize = 100;
+	public static int popSize = 40;
 	public static int maxEvaluations = 20000;
+	
+	//parameters for selection
+	public static int selectTSize = 4;
+	
+	//parameters for crossover/reproduction
+	public static int noOfChildren = 1; //arithmetic crossover will only give 1 child
+	public static int cutPoints = 2; //if you want to do 1 point crossover set this to 1
 	
 	// Parameters for mutation 
 	// Rate = probability of changing a gene
 	// Change = the maximum +/- adjustment to the gene value
-	//public static double mutateRate = 0.04; // mutation rate for mutation operator
-	//public static double mutateChange = 0.1; // delta change for mutation operator
-	
-	public static double mutateRate = 0.1; // mutation rate for mutation operator
+	public static double mutateRate = 0.04; // mutation rate for mutation operator
 	public static double mutateChange = 0.1; // delta change for mutation operator
+	
+	//parameters for replacement
+	public static int replacementTSize = 2; //allows for tournament selection and replacement to have different sizes
 	
 	//Random number generator used throughout the application
 	public static long seed = System.currentTimeMillis();
@@ -38,8 +44,6 @@ public class Parameters {
 	//set the NeuralNetwork class here to use your code from the GUI
 	//public static Class neuralNetworkClass = ExampleHillClimber.class;
 	public static Class neuralNetworkClass = ExampleEvolutionaryAlgorithm.class;
-	
-	//add tournament size
 	
 	/**
 	 * Do not change any methods that appear below here.

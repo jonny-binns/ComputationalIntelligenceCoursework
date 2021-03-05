@@ -4,3 +4,11 @@ after its finished it will give you a .txt file
 click test weights
 open the .txt file
 test
+
+go into parameters.java and change "public static Class neuralNetworkClass" (approx line 39) to be equal to ExampleEvolutionaryAlgorithm.class
+Run StartGUI
+Run ea trainer (random can be used for debugging and stuff but training/test should be used for the report)
+after its finished it will give you a .txt file
+click test weights
+open the .txt file
+rockets will go

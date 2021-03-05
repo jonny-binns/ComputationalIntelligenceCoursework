@@ -57,7 +57,9 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			evaluateIndividuals(children);			
 
 			// Replace children in population
-			replace(children);
+			//replace(children);
+			//ReplaceRandomParent requires the parents as parameters
+			ReplaceRandomParent(children, parent1, parent2);
 
 			// check to see if the best has improved
 			best = getBest();
@@ -123,12 +125,25 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * member of the population
 	 */
 	private Individual select() {	
+		/*
 		//original code
-		//Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
-		//return parent.copy();
+		Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
+		return parent.copy();
+		*/
 		
+		Individual individual = TournamentSelect();
+		return individual;
+
+		
+	}
+	
+	/**
+	 * Tournament Selection
+	 * randomly selects tSize number of individuals and finds the fittest individual from that group
+	 */
+	private Individual TournamentSelect() {
 		//take in tournament size from parameters
-		int tSize = 25;
+		int tSize = Parameters.selectTSize;
 		
 		//create list of potential winners
 		Individual[] potentialParents = new Individual[tSize];
@@ -166,7 +181,6 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		
 		//return chosen parent
 		return chosenParent;
-		
 	}
 
 	/**
@@ -185,68 +199,156 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		return children;
 		*/
 		
-		/*
-		//take in how many points to crossover from parents
-		int noCuts = 1;
-		
-		//pick cut point/s
-		//pick random number/s from the chromosome.length
-		int cutPoint = (int) (0 + (Math.random() * parent1.chromosome.length));
-		
-		
-		//create empty child array
-		double childChromArr[] = new double[parent1.chromosome.length];
-		
-		
-		//genes from parent one
-		//for(i<chromosome.length())
-			//alternate through cut points and add genes from parents
-		
-		//for 1pt crossover need to add for more than 1 point
-		for(int i=0; i<cutPoint; i++)
-		{
-			childChromArr[i] = parent1.chromosome[i];
-		}
-		
-		for(int i=cutPoint; i<parent1.chromosome.length; i++)
-		{
-			childChromArr[i] = parent2.chromosome[i];
-		}
-		
-		ArrayList<Individual> children = new ArrayList<Individual>();
-		Individual child = new Individual();
-		children.add(child);
-		evaluateIndividuals(children);
-		children.get(0).chromosome = childChromArr;
-		
-		return children;
-		*/
+		//1pt crossover
+		//ArrayList<Individual> children = PointCrossover(parent1, parent2);
+		//return children;
 		
 		//uniform crossover
-		//potentially add so parameters decide how many children
-		double childChromArr[] = new double[parent1.chromosome.length];
+		//ArrayList<Individual> children = UniformCrossover(parent1, parent2);
+		//return children;
 		
-		for(int i=0; i<parent1.chromosome.length; i++)
-		{
-			int randInt = Parameters.random.nextInt(2);
-			//System.out.println("randInt = " + randInt);
-			if(randInt == 0)
-			{
-				childChromArr[i] = parent1.chromosome[i];
-			}
-			if(randInt == 1)
-			{
-				childChromArr[i] = parent2.chromosome[i];
-			}
-		}
-		
-		ArrayList<Individual> children = new ArrayList<Individual>();
-		Individual child = new Individual();
-		child.chromosome = childChromArr;
-		children.add(child);
+		//arithmetic crossover
+		ArrayList<Individual> children = ArithmeticCrossover(parent1, parent2);
 		return children;
 		
 	} 
+	
+	/**
+	 * n pt crossover
+	 * chooses a set number of cut point then alternates between parents as to where the childs chromosomes are taken from
+	 */
+	//change to n point crossover, if someone wants only 1 point then change the parameters
+	private ArrayList<Individual> PointCrossover(Individual parent1, Individual parent2) {
+		//get no of children from parameters
+		int childNo = Parameters.noOfChildren;
+		
+		//get no of cuts from parameters
+		int cutNo = Parameters.cutPoints;
+		
+		//make children list
+		ArrayList<Individual> children = new ArrayList<Individual>();
+		
+		//for each child
+		for(int i=0; i<childNo; i++)
+		{
+			//make cutpoint list
+			ArrayList<Integer> cutPoints = new ArrayList<>();
+			for(int j=0; j<cutNo; j++)
+			{
+				//get cut positions
+				cutPoints.add((int) (0 + (Math.random() * parent1.chromosome.length)));
+			}
+		
+			//create chromosome array
+			double childChromArr[] = new double[parent1.chromosome.length];
+			
+			for(int j=0; j<cutPoints.size(); j++)
+			{
+				for(int k=0; k<parent1.chromosome.length; k++)
+				{
+					if(i%2==0)
+					{
+						if(k<cutPoints.get(j))
+						{
+							childChromArr[k] = parent1.chromosome[k];
+						}
+					}
+					if(i%2!=0)
+					{
+						if(k<cutPoints.get(j))
+						{
+							childChromArr[k] = parent2.chromosome[k];
+						}
+					}
+				}
+			}
+		
+			//add child to list
+			Individual child = new Individual();
+			child.chromosome = childChromArr;
+			children.add(child);
+		}
+		
+		//evaluate then return children list
+		evaluateIndividuals(children);
+		return children;
+	}
+	
+	/**
+	 * uniform crossover
+	 * for each chromosome randomly choose whether it comes from parent 1 or 2
+	 */
+	private ArrayList<Individual> UniformCrossover(Individual parent1, Individual parent2) {
+		//get number of children
+		int childNo = Parameters.noOfChildren;
+		
+		//make return List
+		ArrayList<Individual> children = new ArrayList<Individual>();
+		
+		//for each child
+		for(int i=0; i<childNo; i++)
+		{
+			//make chromosome array
+			double childChromArr[] = new double[parent1.chromosome.length];
+			
+			//for each chromosome
+			for(int j=0; j<parent1.chromosome.length; j++)
+			{
+				//generate randint
+				int randInt = Parameters.random.nextInt(2);
+				//get chromosome from corresponding parent
+				if(randInt == 0)
+				{
+					childChromArr[j] = parent1.chromosome[j];
+				}
+				if(randInt == 1)
+				{
+					childChromArr[j] = parent2.chromosome[j];
+				}
+			}
+			
+			//make child, set chromosome and add to children list
+			Individual child = new Individual();
+			child.chromosome = childChromArr;
+			children.add(child);
+		}
+			
+		
+		//evaluate/return list
+		evaluateIndividuals(children);
+		return children;
+	}
+	
+	/**
+	 * Arithmetic crossover
+	 * Takes the average of the parents chromosomes for the child
+	 * (will only give one set of values so only one child will be created)
+	 */
+	private ArrayList<Individual> ArithmeticCrossover(Individual parent1, Individual parent2) {
+		//create child list
+		ArrayList<Individual> children = new ArrayList<Individual>();
+		
+		//make chromosome array
+		double childChromArr[] = new double[parent1.chromosome.length];
+		
+		//loop through parents chromosomes and average the value
+		for(int i=0; i<parent1.chromosome.length; i++)
+		{
+			childChromArr[i] = ((parent1.chromosome[i] + parent2.chromosome[i])/2);
+		}
+		
+		//set childChromArr to child
+		Individual child = new Individual();
+		child.chromosome = childChromArr;
+		
+		//add child to list
+		children.add(child);
+		
+		//evaluate/return list
+		evaluateIndividuals(children);
+		return children;
+	}
+	
 	
 	/**
 	 * Mutation
@@ -281,67 +383,156 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			population.set(idx, individual);
 		}
 		*/
-		/*
+	
 		//replace worst fitness
-		//init worst
-		double worstFitness = population.get(0).fitness;
-		int worstIndex = 0;
-		
-		for(int i=0; i<population.size(); i++)
-		{
-			if(population.get(i).fitness > worstFitness)
-			{
-				worstIndex = i;
-			}
-		}
-		
-		population.set(worstIndex, individuals.get(0));
-		*/
+		//ReplaceWorst(individuals);
 		
 		
 		//replace using tournament
-		//get tournament size
-		int tSize = 15;
+		//TournamentReplace(individuals);
+
+		//replace random parent (called in run())
 		
-		//make list of candidates
-		Individual[] replaceCandidates = new Individual[tSize];
+		//replace random member of population
+		//ReplaceRandom(individuals);
 		
-		//select tSize number of individuals from population
-		for(int i=0; i<tSize; i++)
-		{
-			
-			int randInt = Parameters.random.nextInt(Parameters.popSize);
-			//System.out.println("RandInt = " + randInt);
-			replaceCandidates[i] = population.get(randInt);
-		}
-		
-		//init the worst fitness
-		double worstFitness = replaceCandidates[0].fitness;
-		Individual worst = replaceCandidates[0];
-		
-		//loop through and find the worst fitness
-		for(int i=0; i<replaceCandidates.length; i++)
-		{
-			if(replaceCandidates[i].fitness > worstFitness)
-			{
-				worstFitness = replaceCandidates[i].fitness;
-				worst = replaceCandidates[i];
-			}
-		}
-		
-		//replace worst fitness in population
-		for(int i=0; i<population.size(); i++)
-		{
-			if(population.get(i) == worst)
-			{
-				population.set(i, individuals.get(0));
-			}
-		}
 		
 	}
 
+	/**
+	 * replace worst
+	 * replaces the individual with the worst fitness
+	 */
+	private void ReplaceWorst(ArrayList<Individual> individuals) {
+		//for individuals.length (length of children)
+		for(int i=0; i<individuals.size(); i++)
+		{
+			//init worst
+			double worstFitness = population.get(0).fitness;
+			int worstIndex = 0;
+			
+			//loop through population and find the individual with the worst fitness
+			for(int j=0; j<population.size(); j++)
+			{
+				if(population.get(j).fitness > worstFitness)
+				{
+					worstIndex = j;
+				}
+			}
 	
-
+			//replace with child(i)
+			population.set(worstIndex, individuals.get(i));
+		}
+	}
+	
+	/**
+	 * tournament replace
+	 * randomly selects tSize individuals and replaceses the least fit from that selection
+	 */
+	private void TournamentReplace(ArrayList<Individual> individuals) {	
+		//get tournament size
+		int tSize = Parameters.replacementTSize;
+		
+		for(int i=0; i<individuals.size(); i++)
+		{
+			//make list of candidates
+			Individual[] replaceCandidates = new Individual[tSize];
+			
+			//select tSize number of individuals from population
+			for(int j=0; j<tSize; j++)
+			{
+				
+				int randInt = Parameters.random.nextInt(Parameters.popSize);
+				replaceCandidates[j] = population.get(randInt);
+			}
+			
+			//init the worst fitness
+			double worstFitness = replaceCandidates[0].fitness;
+			Individual worst = replaceCandidates[0];
+			
+			//loop through candidates and find the worst fitness
+			for(int j=0; j<replaceCandidates.length; j++)
+			{
+				if(replaceCandidates[j].fitness > worstFitness)
+				{
+					worstFitness = replaceCandidates[j].fitness;
+					worst = replaceCandidates[j];
+				}
+			}
+			
+			//replace individual with worst fitness in the population with child(i)
+			for(int j=0; j<population.size(); j++)
+			{
+				if(population.get(j) == worst)
+				{
+					population.set(j, individuals.get(i));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Replace random parent
+	 * replaces a random parent of the child in question
+	 * Will only work for one child, if there are 2 or more children parents may be erased more than once
+	 */
+	private void ReplaceRandomParent(ArrayList<Individual> individuals, Individual parent1, Individual parent2) {
+		
+		//generate random int to decide which parent will be replaced
+		int randInt = Parameters.random.nextInt(2);
+			
+		//find parent in population
+		//get position in population
+		
+		//position of parent in the population
+		int parentPos = 0;
+		
+		for(int i=0; i<population.size(); i++)
+		{
+			if(randInt == 0)
+			{
+				//get parent 1
+				if(population.get(i) == parent1)
+				{
+					parentPos = i;
+				}
+			}
+			if(randInt == 1)
+			{
+				//get parent 2
+				if(population.get(i) == parent2)
+				{
+					parentPos = i;
+				}
+			}
+		}
+		
+		//replace parent in population
+		population.set(parentPos, individuals.get(0));
+	}
+	
+	/**
+	 * replace random individual
+	 * replaces a random individual in the population with the children
+	 */
+	private void ReplaceRandom(ArrayList<Individual> individuals) {
+		
+		for(int i=0; i<individuals.size(); i++)
+		{
+			//generate random position to get replaced
+			int randPos = Parameters.random.nextInt(population.size());
+			
+			//replace individual at that position with child
+			population.set(randPos, individuals.get(i));
+		}
+	}
+	
+	
+	/**
+	 * replace oldest
+	 * dont use population.set, instead remove position 0 and add child at the end
+	 */
+	
 	/**
 	 * Returns the index of the worst member of the population
 	 * @return
