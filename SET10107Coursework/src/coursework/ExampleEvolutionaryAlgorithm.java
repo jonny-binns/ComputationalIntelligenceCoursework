@@ -1,6 +1,7 @@
 package coursework;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 import java.lang.Math;
 
 import model.Fitness;
@@ -57,9 +58,10 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			evaluateIndividuals(children);			
 
 			// Replace children in population
-			//replace(children);
+			replace(children);
+			
 			//ReplaceRandomParent requires the parents as parameters
-			ReplaceRandomParent(children, parent1, parent2);
+			//ReplaceRandomParent(children, parent1, parent2);
 
 			// check to see if the best has improved
 			best = getBest();
@@ -125,15 +127,17 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * member of the population
 	 */
 	private Individual select() {	
-		/*
-		//original code
-		Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
-		return parent.copy();
-		*/
 		
-		Individual individual = TournamentSelect();
-		return individual;
+		//original code
+		//Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
+		//return parent.copy();
+		
+		
+		//Individual individual = TournamentSelect();
+		//return individual;
 
+		Individual individual = FitnessProportionateSelection();
+		return individual;
 		
 	}
 	
@@ -182,6 +186,52 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		//return chosen parent
 		return chosenParent;
 	}
+	
+	/**
+	 * Fitness proportionate selection
+	 * implementation based on: www.youtube.com/watch?v=9JzFcGdpT8E&t=135s
+	 */
+	private Individual FitnessProportionateSelection() {	
+		//create parent to return
+		Individual chosenParent = new Individual();
+		
+		//calculate sum of fitness
+		double sumFitness = 0;
+		for(int i=0; i<population.size(); i++)
+		{
+			sumFitness += population.get(i).fitness;
+		}
+		
+		//work out probability then do 1/probability
+		ArrayList<Double> probabilities = new ArrayList<Double>();
+		for(int i=0; i<population.size(); i++)
+		{
+			double probability = (population.get(i).fitness/sumFitness);
+			//doing 1/probability in order to make the smallest fitnesses have the biggest chance
+			probabilities.add(1/probability);
+		}
+		
+		//sum the probabilities
+		double sumProbability = 0;
+		for(int i=0; i<probabilities.size(); i++)
+		{
+			sumProbability += probabilities.get(i);
+		}
+		
+		//change this to probabilities
+		double rand = ThreadLocalRandom.current().nextDouble(0, sumProbability);
+		double partialSum = 0;
+		for(int i=0; i<population.size(); i++)
+		{
+			partialSum += probabilities.get(i);
+			if(partialSum >= rand)
+			{
+				chosenParent = population.get(i);
+			}
+		}
+		
+		return chosenParent;
+	}
 
 	/**
 	 * Crossover / Reproduction
@@ -204,12 +254,12 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		//return children;
 		
 		//uniform crossover
-		//ArrayList<Individual> children = UniformCrossover(parent1, parent2);
-		//return children;
+		ArrayList<Individual> children = UniformCrossover(parent1, parent2);
+		return children;
 		
 		//arithmetic crossover
-		ArrayList<Individual> children = ArithmeticCrossover(parent1, parent2);
-		return children;
+		//ArrayList<Individual> children = ArithmeticCrossover(parent1, parent2);
+		//return children;
 		
 	} 
 	
@@ -356,6 +406,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * 
 	 */
 	private void mutate(ArrayList<Individual> individuals) {		
+		/*
+		//original code
 		for(Individual individual : individuals) {
 			for (int i = 0; i < individual.chromosome.length; i++) {
 				if (Parameters.random.nextDouble() < Parameters.mutateRate) {
@@ -366,7 +418,78 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 					}
 				}
 			}
-		}		
+		}
+		*/		
+		
+		uniformMutation(individuals);
+		
+		//swapMutation(individuals);
+		
+		//inverseMutation(individuals);
+	}
+	
+	/**
+	 * randomly mutates gene to a random variable in the allowed range (set in parameters)
+	 */
+	private void uniformMutation(ArrayList<Individual> individuals) {	
+		for(int i=0; i<individuals.size(); i++)
+		{
+			for(int j=0; j<individuals.get(i).chromosome.length; j++)
+			{
+				if(Parameters.random.nextDouble() < Parameters.mutateRate)
+				{
+					individuals.get(i).chromosome[j] = ThreadLocalRandom.current().nextDouble(Parameters.minGene, Parameters.maxGene);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * picks 2 random chromosomes and exchanges their values 
+	 */
+	private void swapMutation(ArrayList<Individual> individuals) {
+		for(int i=0; i<individuals.size(); i++)
+		{
+			if(Parameters.random.nextDouble() < Parameters.mutateRate)
+			{
+				int pos1 = Parameters.random.nextInt(individuals.get(i).chromosome.length);
+				int pos2 = Parameters.random.nextInt(individuals.get(i).chromosome.length);
+					
+				double temp = individuals.get(i).chromosome[pos1];
+				individuals.get(i).chromosome[pos1] = individuals.get(i).chromosome[pos2];
+				individuals.get(i).chromosome[pos2] = temp;
+			}
+		}
+	}
+	
+	/**
+	 * picks two points in the chromosome and reverses the order of the values between those points
+	 */
+	private void inverseMutation(ArrayList<Individual> individuals) {
+		for(int i=0; i<individuals.size(); i++)
+		{
+			if(Parameters.random.nextDouble() < Parameters.mutateRate)
+			{
+				//select 2 positions in the string
+				int pos1 = Parameters.random.nextInt(individuals.get(i).chromosome.length);
+				int pos2 = Parameters.random.nextInt(individuals.get(i).chromosome.length);
+				
+				//create array of those values
+				ArrayList<Double> temp = new ArrayList<Double>();
+				for(int j=pos1; j<pos2; j++)
+				{
+					temp.add(individuals.get(i).chromosome[j]);
+				}
+				
+				//loop through chromosomes and backward through list, replacing values				
+				int k = (pos2 - pos1) - 1;
+				for(int j=pos1; j<pos2; j++)
+				{
+					individuals.get(i).chromosome[j] = temp.get(k);
+					k--;
+				}
+			}
+		}
 	}
 
 	/**
@@ -389,12 +512,15 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		
 		
 		//replace using tournament
-		//TournamentReplace(individuals);
+		TournamentReplace(individuals);
 
 		//replace random parent (called in run())
 		
 		//replace random member of population
 		//ReplaceRandom(individuals);
+		
+		//replace oldest
+		//ReplaceOldest(individuals);
 		
 		
 	}
@@ -474,41 +600,73 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	/**
 	 * Replace random parent
 	 * replaces a random parent of the child in question
-	 * Will only work for one child, if there are 2 or more children parents may be erased more than once
+	 * Only works for a maximum of 2 children
 	 */
 	private void ReplaceRandomParent(ArrayList<Individual> individuals, Individual parent1, Individual parent2) {
+		//selected parent
 		
+		//for each child
+			//generate random parent to be replaced
+				//check parent hasnt been replaced already
+			
+			//loop through population
+				//get parent
+				//replace parent
+		
+		//int to store the parent that has already been replaced, set to 2 as that is out of bounds for the random number generator
+		int replacedParent = 2; 
+		
+		for(int i=0; i<individuals.size(); i++)
+		{
+			//generate random int to decide which parent will be replaced
+			int randInt = Parameters.random.nextInt(2);
+			
+			if(randInt != replacedParent)
+			{
+				for(int j=0; j<population.size(); j++)
+				{
+					if(randInt == 0 && population.get(j) == parent1)
+					{
+						population.set(j, individuals.get(i));
+					}
+					if(randInt == 1 && population.get(j) == parent2)
+					{
+						population.set(j, individuals.get(i));
+					}
+				}
+			}
+			
+			replacedParent = randInt;
+		}
+		
+		
+		
+		/*
 		//generate random int to decide which parent will be replaced
 		int randInt = Parameters.random.nextInt(2);
-			
-		//find parent in population
-		//get position in population
 		
 		//position of parent in the population
-		int parentPos = 0;
+		//int parentPos = 0;
 		
 		for(int i=0; i<population.size(); i++)
 		{
-			if(randInt == 0)
+			//get parent 1
+			if(randInt == 0 && population.get(i) == parent1)
 			{
-				//get parent 1
-				if(population.get(i) == parent1)
-				{
-					parentPos = i;
-				}
+				//parentPos = i;
+				population.set(i, individuals.get(0));
+				
 			}
-			if(randInt == 1)
+			//get parent 2
+			if(randInt == 1 && population.get(i) == parent2)
 			{
-				//get parent 2
-				if(population.get(i) == parent2)
-				{
-					parentPos = i;
-				}
+				//parentPos = i;
 			}
 		}
 		
 		//replace parent in population
-		population.set(parentPos, individuals.get(0));
+		//population.set(parentPos, individuals.get(0));
+		*/
 	}
 	
 	/**
@@ -532,6 +690,19 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * replace oldest
 	 * dont use population.set, instead remove position 0 and add child at the end
 	 */
+	private void ReplaceOldest(ArrayList<Individual> individuals) {
+		//for each child
+			//delete individual at start of population
+			//add child to the end of population
+		
+		for(int i=0; i<individuals.size(); i++)
+		{
+			population.remove(i);
+			population.add(individuals.get(i));
+		}
+	}
+	
+	
 	
 	/**
 	 * Returns the index of the worst member of the population

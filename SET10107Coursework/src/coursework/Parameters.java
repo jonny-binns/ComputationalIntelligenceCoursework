@@ -25,7 +25,7 @@ public class Parameters {
 	public static int selectTSize = 4;
 	
 	//parameters for crossover/reproduction
-	public static int noOfChildren = 1; //arithmetic crossover will only give 1 child
+	public static int noOfChildren = 2; //arithmetic crossover will only give 1 child, replace random parent will work with a max of 2
 	public static int cutPoints = 2; //if you want to do 1 point crossover set this to 1
 	
 	// Parameters for mutation 
@@ -35,7 +35,7 @@ public class Parameters {
 	public static double mutateChange = 0.1; // delta change for mutation operator
 	
 	//parameters for replacement
-	public static int replacementTSize = 2; //allows for tournament selection and replacement to have different sizes
+	public static int replacementTSize = 4; //allows for tournament selection and replacement to have different sizes
 	
 	//Random number generator used throughout the application
 	public static long seed = System.currentTimeMillis();
