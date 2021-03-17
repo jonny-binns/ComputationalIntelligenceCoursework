@@ -48,7 +48,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			Individual parent1 = select(); 
 			Individual parent2 = select();
 
-			// Generate a child by crossover. Not Implemented			
+			// Generate a child by crossover		
 			ArrayList<Individual> children = reproduce(parent1, parent2);			
 			
 			//mutate the offspring
@@ -133,11 +133,11 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		//return parent.copy();
 		
 		
-		//Individual individual = TournamentSelect();
-		//return individual;
-
-		Individual individual = FitnessProportionateSelection();
+		Individual individual = TournamentSelect();
 		return individual;
+
+		//Individual individual = FitnessProportionateSelection();
+		//return individual;
 		
 	}
 	
@@ -444,6 +444,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		}
 	}
 	
+	
 	/**
 	 * picks 2 random chromosomes and exchanges their values 
 	 */
@@ -509,7 +510,6 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	
 		//replace worst fitness
 		//ReplaceWorst(individuals);
-		
 		
 		//replace using tournament
 		TournamentReplace(individuals);
