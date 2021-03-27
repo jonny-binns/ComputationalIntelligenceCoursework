@@ -150,7 +150,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		int tSize = Parameters.selectTSize;
 		
 		//create list of potential winners
-		Individual[] potentialParents = new Individual[tSize];
+		ArrayList<Individual> potentialParents = new ArrayList<>();
 		
 		//for i<tournament size
 			//randomly select tournament size individuals from population and add to an array of potential parents
@@ -158,27 +158,21 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		{
 			
 			int randInt = Parameters.random.nextInt(Parameters.popSize);
-			//System.out.println("RandInt = " + randInt);
-			potentialParents[i] = population.get(randInt);
+			//check for duplicate individuals
+			if(potentialParents.contains(population.get(randInt)) == false) {
+				potentialParents.add(population.get(randInt));
+			}
 		}
 		
-		
-		//initialize the best fitness potential parents[0]
-		double bestFitness = potentialParents[0].fitness;
-		
 		//init chosen parent
-		Individual chosenParent = potentialParents[0];
+		Individual chosenParent = potentialParents.get(0);
 		
-		//for i<tournament size
-			//if fitness(potential parent[i]) < best fitness
-				//best fitness = fitness 
-				//chosen parent = potential parent[i]
-		for(int i=0; i<tSize; i++)
+		//loop through candidates and find best fitness
+		for(int i=0; i<potentialParents.size(); i++)
 		{
-			if(potentialParents[i].fitness < bestFitness)
+			if(potentialParents.get(i).fitness < chosenParent.fitness)
 			{
-				bestFitness = potentialParents[i].fitness;
-				chosenParent = potentialParents[i];
+				chosenParent = potentialParents.get(i);
 			}
 		}
 		
@@ -249,7 +243,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		return children;
 		*/
 		
-		//1pt crossover
+		//npt crossover
 		//ArrayList<Individual> children = PointCrossover(parent1, parent2);
 		//return children;
 		
@@ -553,7 +547,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	
 	/**
 	 * tournament replace
-	 * randomly selects tSize individuals and replaceses the least fit from that selection
+	 * randomly selects tSize individuals and replace the least fit from that selection
 	 */
 	private void TournamentReplace(ArrayList<Individual> individuals) {	
 		//get tournament size
@@ -562,29 +556,33 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		for(int i=0; i<individuals.size(); i++)
 		{
 			//make list of candidates
-			Individual[] replaceCandidates = new Individual[tSize];
+			ArrayList<Individual> replaceCandidates = new ArrayList<Individual>();
 			
 			//select tSize number of individuals from population
 			for(int j=0; j<tSize; j++)
 			{
 				
 				int randInt = Parameters.random.nextInt(Parameters.popSize);
-				replaceCandidates[j] = population.get(randInt);
+				//check if candidate is already in list
+				if(replaceCandidates.contains(population.get(randInt)) == false)
+				{
+					replaceCandidates.add(population.get(randInt));
+				}
 			}
 			
 			//init the worst fitness
-			double worstFitness = replaceCandidates[0].fitness;
-			Individual worst = replaceCandidates[0];
+			Individual worst = replaceCandidates.get(0);
 			
 			//loop through candidates and find the worst fitness
-			for(int j=0; j<replaceCandidates.length; j++)
+			for(int j=0; j<replaceCandidates.size(); j++)
 			{
-				if(replaceCandidates[j].fitness > worstFitness)
+				if(replaceCandidates.get(j).fitness > worst.fitness)
 				{
-					worstFitness = replaceCandidates[j].fitness;
-					worst = replaceCandidates[j];
+					worst = replaceCandidates.get(j);
+					
 				}
 			}
+			
 			
 			//replace individual with worst fitness in the population with child(i)
 			for(int j=0; j<population.size(); j++)
@@ -638,35 +636,6 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			
 			replacedParent = randInt;
 		}
-		
-		
-		
-		/*
-		//generate random int to decide which parent will be replaced
-		int randInt = Parameters.random.nextInt(2);
-		
-		//position of parent in the population
-		//int parentPos = 0;
-		
-		for(int i=0; i<population.size(); i++)
-		{
-			//get parent 1
-			if(randInt == 0 && population.get(i) == parent1)
-			{
-				//parentPos = i;
-				population.set(i, individuals.get(0));
-				
-			}
-			//get parent 2
-			if(randInt == 1 && population.get(i) == parent2)
-			{
-				//parentPos = i;
-			}
-		}
-		
-		//replace parent in population
-		//population.set(parentPos, individuals.get(0));
-		*/
 	}
 	
 	/**

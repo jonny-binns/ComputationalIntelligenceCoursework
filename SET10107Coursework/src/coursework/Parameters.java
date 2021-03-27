@@ -22,20 +22,20 @@ public class Parameters {
 	public static int maxEvaluations = 20000;
 	
 	//parameters for selection
-	public static int selectTSize = 4;
+	public static int selectTSize = 8;
 	
 	//parameters for crossover/reproduction
-	public static int noOfChildren = 2; //arithmetic crossover will only give 1 child, replace random parent will work with a max of 2
+	public static int noOfChildren = 5; //arithmetic crossover will only give 1 child, replace random parent will work with a max of 2
 	public static int cutPoints = 2; //if you want to do 1 point crossover set this to 1
 	
 	// Parameters for mutation 
 	// Rate = probability of changing a gene
 	// Change = the maximum +/- adjustment to the gene value
-	public static double mutateRate = 0.04; // mutation rate for mutation operator
+	public static double mutateRate = 0.09; // mutation rate for mutation operator
 	public static double mutateChange = 0.1; // delta change for mutation operator
 	
 	//parameters for replacement
-	public static int replacementTSize = 4; //allows for tournament selection and replacement to have different sizes
+	public static int replacementTSize = 20; //allows for tournament selection and replacement to have different sizes
 	
 	//Random number generator used throughout the application
 	public static long seed = System.currentTimeMillis();
