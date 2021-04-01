@@ -244,12 +244,12 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		*/
 		
 		//npt crossover
-		//ArrayList<Individual> children = PointCrossover(parent1, parent2);
-		//return children;
+		ArrayList<Individual> children = PointCrossover(parent1, parent2);
+		return children;
 		
 		//uniform crossover
-		ArrayList<Individual> children = UniformCrossover(parent1, parent2);
-		return children;
+		//ArrayList<Individual> children = UniformCrossover(parent1, parent2);
+		//return children;
 		
 		//arithmetic crossover
 		//ArrayList<Individual> children = ArithmeticCrossover(parent1, parent2);
@@ -503,10 +503,10 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		*/
 	
 		//replace worst fitness
-		//ReplaceWorst(individuals);
+		ReplaceWorst(individuals);
 		
 		//replace using tournament
-		TournamentReplace(individuals);
+		//TournamentReplace(individuals);
 
 		//replace random parent (called in run())
 		
@@ -537,6 +537,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 				if(population.get(j).fitness > worstFitness)
 				{
 					worstIndex = j;
+					worstFitness = population.get(j).fitness;
 				}
 			}
 	
